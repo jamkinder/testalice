@@ -10,7 +10,8 @@ import logging
 # если бы такое обращение, например, произошло внутри модуля logging,
 # то мы бы получили 'logging'
 app = Flask(__name__)
-
+animal = ''
+animals = ['Слона', 'Кролика']
 # Устанавливаем уровень логирования
 logging.basicConfig(level=logging.INFO)
 
@@ -56,6 +57,8 @@ def main():
 
 
 def handle_dialog(req, res):
+    global animals
+    animal = animals[0]
     user_id = req['session']['user_id']
 
     if req['session']['new']:
@@ -71,7 +74,7 @@ def handle_dialog(req, res):
             ]
         }
         # Заполняем текст ответа
-        res['response']['text'] = 'Привет! Купи слона!'
+        res['response']['text'] = f'Привет! Купи {animal}!'
         # Получим подсказки
         res['response']['buttons'] = get_suggests(user_id)
         return
@@ -93,18 +96,20 @@ def handle_dialog(req, res):
         'я куплю'
     ]:
         # Пользователь согласился, прощаемся.
-        res['response']['text'] = 'Слона можно найти на Яндекс.Маркете!'
-        res['response']['end_session'] = True
+        res['response']['text'] = f'{animal} можно найти на Яндекс.Маркете!'
+        # res['response']['end_session'] = True
         return
 
     # Если нет, то убеждаем его купить слона!
     res['response']['text'] = \
-        f"Все говорят '{req['request']['original_utterance']}', а ты купи слона!"
+        f"Все говорят '{req['request']['original_utterance']}', а ты купи {animal}!"
     res['response']['buttons'] = get_suggests(user_id)
 
 
 # Функция возвращает две подсказки для ответа.
 def get_suggests(user_id):
+    global animals
+    animal = animals[0]
     session = sessionStorage[user_id]
 
     # Выбираем две первые подсказки из массива.
@@ -122,9 +127,11 @@ def get_suggests(user_id):
     if len(suggests) < 2:
         suggests.append({
             "title": "Ладно",
-            "url": "https://market.yandex.ru/search?text=слон",
-            "hide": True
+            "url": f"https://market.yandex.ru/search?text={animal}"
         })
+        if len(animals) > 0:
+            animals.pop(0)
+            main()
 
     return suggests
 
