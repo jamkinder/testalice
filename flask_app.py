@@ -30,6 +30,8 @@ def get_coordinates(city_name):
         return long, lat
     except Exception as e:
         return e
+
+
 def get_country(city_name):
     try:
         url = "https://geocode-maps.yandex.ru/1.x/"
@@ -45,7 +47,16 @@ def get_country(city_name):
             'GeocoderMetaData']['AddressDetails']['Country']['CountryName']
     except Exception as e:
         return e
+
+
 import math
+
+
+def get_geo_info(city_name, type_info):
+    if type_info == 'country':
+        get_country(city_name)
+    elif type_info == 'coordinates':
+        get_coordinates(city_name)
 
 
 def get_distance(p1, p2):
